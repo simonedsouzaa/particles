@@ -1,4 +1,73 @@
 #include "Particle.h"
+using namespace std;
+using namespace sf;
+using namespace Matrices;
+
+Particle::Particle(RenderTarget& target, int numPoints, Vector2i mouseClickPosition)
+    :  m_A(2, numPoints), m_ttl(TTL), m_numPoints(numPoints), m_radiansPerSec((float)rand() / (RAND_MAX) * (M_PI))
+{
+   
+    m_cartesianPlane = target.getView();
+    m_cartesianPlane.setCenter(0,0);
+    m_cartesianPlane.setSize(target.getSize().x, (-1) * target.getSize().y);
+    
+    //Store the location of the center of this particle on the Cartesian plane
+    m_centerCoordinate = target.mapPixelToCoords(mouseClickPosition, m_cartesianPlane);
+
+    //Assign m_vx and m_vy to random pixel velocities and randomly positive or negative
+    m_vx = (rand() % 401 + 100);
+    if (rand() % 2 != 0){m_vx *= -1;}
+
+    m_vy = (rand() % 401 + 100);
+    if (rand() % 2 != 0){m_vy *= -1;}
+
+    /****** CHANGE UP LATER ******/
+    m_color1 = (Color::White);
+    m_color2 = (Color::Green);
+
+    //creates shape w/numPoint vertices based on circular arc
+    double theta = (float)rand() / RAND_MAX * (M_PI / 2);
+    double dTheta = 2 * M_PI / (m_numPoints - 1);
+    
+    for (int j = 0; j < numPoints; j++)
+    {
+        double r = rand() % 61 + 20;
+        double dx = r * cos(theta);
+        double dy = r * sin(theta);
+
+        m_A(0,j) = m_centerCoordinate.x + dx;
+        m_A(1,j) = m_centerCoordinate.y + dy;
+        
+        theta += dTheta;
+    }
+
+
+    m_A = Matrix (2, m_numPoints);
+    double angleIncrement = 2 * M_PI / m_numPoints;
+
+    for (int i = 0; i< m_numPoints; i++)
+    {
+        double angle = i * angleIncrement;
+        m_A(0,i) = cos(angle) * 50;
+        m_A(1,i) = sin(angle) * 50;
+    }
+
+}
+
+void Particle::draw(RenderTarget& target, RenderStates states) const
+{
+
+}
+
+void Particle::update(float dt)
+{
+
+}
+
+float Particle::getTTL() 
+{ 
+    return m_ttl;
+}
 
 
 bool Particle::almostEqual(double a, double b, double eps)
