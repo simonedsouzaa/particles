@@ -3,14 +3,14 @@
 Engine::Engine(){
 }
 
-Engine::run(){
+void Engine::run(){
 }
 
 Engine::input(){
 }
 
-Engine::update(float dtAsSeconds){
+void Engine::update(float dtAsSeconds){
 }
 
-Engine::draw(){
+void Engine::draw(){
 }
