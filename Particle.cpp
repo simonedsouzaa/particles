@@ -54,15 +54,36 @@ Particle::Particle(RenderTarget& target, int numPoints, Vector2i mouseClickPosit
 
 }
 
-void Particle::draw(RenderTarget& target, RenderStates states) const
-{
-
+void Particle::draw(RenderTarget& target, RenderStates states) const {
+    VertexArray lines(TriangleFan, m_numPoints + 1);
+    Vector2f center = target.mapCoordsToPixel(m_centerCoordinate, m_cartesianPlane);
+    lines[0].position = center;
+    lines[0].color = m_color1;
+    
+    for (int j = 0; j < m_numPoints; j++) {
+        Vector2f vertex = target.mapCoordsToPixel(Vector2f(m_A(0, j), m_A(1, j)), m_cartesianPlane);
+        lines[j + 1].position = vertex;
+        lines[j + 1].color = m_color2;
+    }
+    
+    target.draw(lines);
 }
 
-void Particle::update(float dt)
-{
 
+void Particle::update(float dt) {
+    m_ttl -= dt;
+    
+    // Apply rotation, scale, and translation
+    rotate(dt * m_radiansPerSec);
+    scale(SCALE);
+    
+    float dx = m_vx * dt;
+    float dy = m_vy * dt;
+    m_vy -= G * dt;  // Gravity effect on vertical velocity
+    
+    translate(dx, dy);
 }
+
 
 float Particle::getTTL() 
 { 
