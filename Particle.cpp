@@ -2,6 +2,53 @@
 #include <iostream>
 #include <random>
 
+Particle::Particle(RenderTarget& target, int numPoints, Vector2i mouseClickPosition)
+    : m_A(2, numPoints) // Initialize the matrix for storing particle vertices
+{
+    // Initialize time-to-live with TTL constant
+    m_ttl = TTL;
+    m_numPoints = numPoints;
+
+    // Set random angular velocity in the range [0, PI]
+    m_radiansPerSec = (float)rand() / RAND_MAX * M_PI;
+
+    // Create and set up the Cartesian plane view to map coordinates correctly
+    m_cartesianPlane.setCenter(0, 0);
+    m_cartesianPlane.setSize(target.getSize().x, -1.0f * target.getSize().y);
+
+    // Map the mouse click position to the Cartesian plane's coordinates
+    Vector2f center = target.mapPixelToCoords(mouseClickPosition, m_cartesianPlane);
+    m_centerCoordinate = center;
+
+    // Random initial velocities for particle's movement
+    m_vx = (rand() % 401 + 100) * (rand() % 2 == 0 ? 1.0f : -1.0f); // Random horizontal velocity between 100 and 500
+    m_vy = (rand() % 401 + 100) * (rand() % 2 == 0 ? 1.0f : -1.0f); // Random vertical velocity between 100 and 500
+
+    // Assign random colors for particle
+    m_color1 = Color::White;
+    m_color2 = Color(rand() % 256, rand() % 256, rand() % 256);
+
+    // Initialize angle for sweeping around the origin
+    float theta = (float)rand() / RAND_MAX * (M_PI / 2);  // Random angle between 0 and PI/2
+    float dTheta = 2 * M_PI / (numPoints - 1);  // Angle step per point
+
+    // Generate the vertices for the particle shape
+    for (int j = 0; j < numPoints; ++j) {
+        // Generate random radius between 20 and 150 for more variety
+        float r = 20 + (rand() % 131); // Random radius between 20 and 150
+
+        // Convert polar to Cartesian coordinates (dx, dy)
+        float dx = r * cos(theta);
+        float dy = r * sin(theta);
+
+        // Store the vertices in the matrix (in Cartesian coordinates)
+        m_A(0, j) = m_centerCoordinate.x + dx;
+        m_A(1, j) = m_centerCoordinate.y + dy;
+
+        // Increment the angle for the next point
+        theta += dTheta + (float)rand() / RAND_MAX * 0.1f;  // Add small randomness to dTheta for irregularity
+    }
+}
 
 /*Particle::Particle(RenderTarget& target, int numPoints, Vector2i mouseClickPosition) 
     : m_ttl(TTL), m_numPoints(numPoints), m_radiansPerSec((float)rand() / RAND_MAX * (M_PI)), m_A(2, numPoints)
@@ -33,7 +80,7 @@
         theta += dTheta;
     }
 }
-*/ Particle::Particle(RenderTarget& target, int numPoints, Vector2i mouseClickPosition)
+ Particle::Particle(RenderTarget& target, int numPoints, Vector2i mouseClickPosition)
     :  m_ttl(TTL), m_numPoints(numPoints), m_radiansPerSec((float)rand() / (RAND_MAX) * (M_PI)), m_A(2, numPoints)
 {
    
@@ -98,6 +145,7 @@
     }
 */
 }
+*/
 
 void Particle::draw(RenderTarget& target, RenderStates states) const {
    
