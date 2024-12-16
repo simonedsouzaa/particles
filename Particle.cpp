@@ -77,9 +77,6 @@ void Particle::update(float dt) {
     // Decrease TTL by dt (Time to live countdown)
     m_ttl -= dt;
 
-    // Print out current TTL for debugging
-    std::cout << "TTL: " << m_ttl << std::endl;
-
     // Rotate the particle
     rotate(dt * m_radiansPerSec);
 
@@ -91,10 +88,6 @@ void Particle::update(float dt) {
     float dy = m_vy * dt;
     m_vy -= G * dt;  // Apply gravity to vertical velocity
 
-    // Print out velocities for debugging
-    std::cout << "vx: " << m_vx << " vy: " << m_vy << std::endl;
-
-    // Translate the particle based on velocity
     translate(dx, dy);
 }
 
