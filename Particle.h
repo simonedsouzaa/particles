@@ -2,10 +2,10 @@
 #include "Matrices.h"
 #include <SFML/Graphics.hpp>
 
-constexpr float PI = 3.1415926535897932384626433f;
-constexpr float GRAVITY = 1000.0f;
-constexpr float TIME_TO_LIVE = 5.0f;
-constexpr float SCALE_FACTOR = 0.999f;
+const float PI = 3.1415926535897932384626433f;
+const float GRAVITY = 1000.0f;
+const float TIME_TO_LIVE = 5.0f;
+const float SCALE_FACTOR = 0.999f;
 
 using namespace Matrices;
 using namespace sf;
@@ -18,7 +18,6 @@ public:
     void update(float dt);
     float getTTL() const noexcept { return m_ttl; }
 
-    // Functions for unit testing
     bool almostEqual(double a, double b, double eps = 0.0001) noexcept;
     void unitTests();
 
