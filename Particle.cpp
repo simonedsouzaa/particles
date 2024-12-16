@@ -62,8 +62,6 @@ bool Particle::almostEqual(double a, double b, double eps) noexcept
 
 void Particle::unitTests()
 {
-    // Add unit tests here
     std::cout << "Running Unit Tests..." << std::endl;
-    // For example:
     assert(almostEqual(3.0, 3.0));
 }
