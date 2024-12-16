@@ -18,7 +18,7 @@ Particle::Particle(RenderTarget& target, int numPoints, Vector2i mouseClickPosit
     m_cartesianPlane.setSize(target.getSize().x, -1.0f * target.getSize().y);
 
     // Map the mouse click position to the Cartesian plane's coordinates
-    Vector2f center = target.mapPixelToCoords(mouseClickPosition, m_cartesianPlane);
+    Vector2f center = Vector2f(target.mapPixelToCoords(mouseClickPosition, m_cartesianPlane));
     m_centerCoordinate = center;
 
     // Random initial velocities for particle's movement
@@ -56,7 +56,7 @@ void Particle::draw(RenderTarget& target, RenderStates states) const {
     VertexArray lines(PrimitiveType::TriangleFan, m_numPoints + 1); // +1 for the center point
 
     // Map the particle center to pixel coordinates
-    Vector2f center = target.mapCoordsToPixel(m_centerCoordinate, m_cartesianPlane);
+    Vector2f center = Vector2f(target.mapCoordsToPixel(m_centerCoordinate, m_cartesianPlane));
 
     // Set the first vertex as the center of the particle
     lines[0].position = center;
@@ -64,7 +64,7 @@ void Particle::draw(RenderTarget& target, RenderStates states) const {
 
     // Loop through the particle points and add them to the VertexArray
     for (int j = 0; j < m_numPoints; ++j) {
-        Vector2f vertexPos = target.mapCoordsToPixel(Vector2f(m_A(0, j), m_A(1, j)), m_cartesianPlane);
+        Vector2f vertexPos = Vector2f(target.mapCoordsToPixel(Vector2f(m_A(0, j), m_A(1, j)), m_cartesianPlane));
         lines[j + 1].position = vertexPos;  // Map each vertex position from Cartesian to pixel
         lines[j + 1].color = m_color2; // Outer vertex color
     }
@@ -128,3 +128,140 @@ void Particle::translate(double xShift, double yShift) {
     m_centerCoordinate.y += yShift;
 }
 
+bool Particle::almostEqual(double a, double b, double eps)
+{
+return fabs(a - b) < eps;
+}
+void Particle::unitTests()
+{
+int score = 0;
+cout << "Testing RotationMatrix constructor...";
+double theta = M_PI / 4.0;
+RotationMatrix r(M_PI / 4);
+if (r.getRows() == 2 && r.getCols() == 2 && almostEqual(r(0, 0), cos(theta))
+&& almostEqual(r(0, 1), -sin(theta))
+&& almostEqual(r(1, 0), sin(theta))
+&& almostEqual(r(1, 1), cos(theta)))
+{
+cout << "Passed. +1" << endl;
+score++;
+}
+else
+{
+cout << "Failed." << endl;
+}
+cout << "Testing ScalingMatrix constructor...";
+ScalingMatrix s(1.5);
+if (s.getRows() == 2 && s.getCols() == 2
+&& almostEqual(s(0, 0), 1.5)
+&& almostEqual(s(0, 1), 0)
+&& almostEqual(s(1, 0), 0)
+&& almostEqual(s(1, 1), 1.5))
+{
+cout << "Passed. +1" << endl;
+score++;
+}
+else
+{
+cout << "Failed." << endl;
+}
+cout << "Testing TranslationMatrix constructor...";
+TranslationMatrix t(5, -5, 3);
+if (t.getRows() == 2 && t.getCols() == 3
+&& almostEqual(t(0, 0), 5)
+&& almostEqual(t(1, 0), -5)
+&& almostEqual(t(0, 1), 5)
+&& almostEqual(t(1, 1), -5)
+&& almostEqual(t(0, 2), 5)
+&& almostEqual(t(1, 2), -5))
+{
+cout << "Passed. +1" << endl;
+score++;
+}
+else
+{
+cout << "Failed." << endl;
+}
+cout << "Testing Particles..." << endl;
+cout << "Testing Particle mapping to Cartesian origin..." << endl;
+if (m_centerCoordinate.x != 0 || m_centerCoordinate.y != 0)
+{
+cout << "Failed. Expected (0,0). Received: (" << m_centerCoordinate.x <<
+"," << m_centerCoordinate.y << ")" << endl;
+}
+else
+{
+cout << "Passed. +1" << endl;
+score++;
+}
+cout << "Applying one rotation of 90 degrees about the origin..." << endl;
+Matrix initialCoords = m_A;
+rotate(M_PI / 2.0);
+bool rotationPassed = true;
+for (int j = 0; j < initialCoords.getCols(); j++)
+{
+if (!almostEqual(m_A(0, j), -initialCoords(1, j)) || !almostEqual(m_A(1,
+j), initialCoords(0, j)))
+{
+cout << "Failed mapping: ";
+cout << "(" << initialCoords(0, j) << ", " << initialCoords(1, j) << ") ==> (" << m_A(0, j) << ", " << m_A(1, j) << ")" << endl;
+rotationPassed = false;
+}
+}
+if (rotationPassed)
+{
+cout << "Passed. +1" << endl;
+score++;
+}
+else
+{
+cout << "Failed." << endl;
+}
+cout << "Applying a scale of 0.5..." << endl;
+initialCoords = m_A;
+scale(0.5);
+bool scalePassed = true;
+for (int j = 0; j < initialCoords.getCols(); j++)
+{
+if (!almostEqual(m_A(0, j), 0.5 * initialCoords(0,j)) || !
+almostEqual(m_A(1, j), 0.5 * initialCoords(1, j)))
+{
+cout << "Failed mapping: ";
+cout << "(" << initialCoords(0, j) << ", " << initialCoords(1, j) << ") ==> (" << m_A(0, j) << ", " << m_A(1, j) << ")" << endl;
+scalePassed = false;
+}
+}
+if (scalePassed)
+{
+cout << "Passed. +1" << endl;
+score++;
+}
+else
+{
+cout << "Failed." << endl;
+}
+cout << "Applying a translation of (10, 5)..." << endl;
+initialCoords = m_A;
+translate(10, 5);
+bool translatePassed = true;
+for (int j = 0; j < initialCoords.getCols(); j++)
+{
+if (!almostEqual(m_A(0, j), 10 + initialCoords(0, j)) || !
+almostEqual(m_A(1, j), 5 + initialCoords(1, j)))
+{
+cout << "Failed mapping: ";
+cout << "(" << initialCoords(0, j) << ", " << initialCoords(1, j) << ") ==> (" << m_A(0, j) << ", " << m_A(1, j) << ")" << endl;
+translatePassed = false;
+}
+}
+if (translatePassed)
+{
+cout << "Passed. +1" << endl;
+score++;
+}
+else
+{
+cout << "Failed." << endl;
+}
+cout << "Score: " << score << " / 7" << endl;
+}
