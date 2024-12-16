@@ -113,7 +113,7 @@ void Particle::scale(double c) {
 void Particle::translate(double xShift, double yShift) {
     // Construct translation matrix
     TranslationMatrix T(xShift, yShift);
-    m_A = T + m_A; // Apply translation
+    m_A = T * m_A; // Apply translation
 
     // Update the particle's center position
     m_centerCoordinate.x += xShift;
