@@ -117,23 +117,14 @@ void Particle::scale(double c) {
 }
 
 void Particle::translate(double xShift, double yShift) {
-    // Construct translation matrix
-    TranslationMatrix T(xShift, yShift);
-    m_A = T * m_A; // Apply translation
-
-    // Update the particle's center position
+    // Construct translation matrix with xShift, yShift, and number of points (m_numPoints)
+    TranslationMatrix T(xShift, yShift, m_numPoints);
+    
+    // Apply the translation matrix to m_A (matrix of points)
+    m_A = T + m_A;  // Translation is an addition operation for matrices
+    
+    // Update the center of the particle
     m_centerCoordinate.x += xShift;
     m_centerCoordinate.y += yShift;
 }
 
-// Utility function to check for approximate equality (used for unit testing)
-bool Particle::almostEqual(double a, double b, double eps) {
-    return fabs(a - b) < eps;
-}
-
-// Unit test example (implement as needed)
-void Particle::unitTests() {
-    // You can call unit tests here to verify the behavior of the particle's transformations
-    std::cout << "Unit tests for Particle class" << std::endl;
-    // Add specific tests like checking TTL, velocities, and transformations
-}
