@@ -2,10 +2,7 @@
 #include <iostream>
 
 Engine::Engine()
-    : m_Window(VideoMode(800, 600), "Particle Engine")
-{
-    // Initialize empty particle vector
-}
+    : m_Window(VideoMode(800, 600), "Particle Engine") {}
 
 void Engine::input()
 {
@@ -16,15 +13,20 @@ void Engine::input()
         {
             m_Window.close();
         }
-        else if (event.type == Event::MouseButtonPressed && event.mouseButton.button == Mouse::Left)
+        if (event.type == Event::KeyPressed)
         {
-            Vector2i mousePosition(event.mouseButton.x, event.mouseButton.y);
+            m_Window.close();
+        }
 
-            // Generate 5 particles with randomized shapes and behaviors
-            for (int i = 0; i < 5; ++i)
+        if (event.type == Event::MouseButtonPressed && event.mouseButton.button == Mouse::Left)
+        {
+            Vector2i mousePos = Mouse::getPosition(m_Window);
+            
+            for (int i = 0; i < 5; i++)
             {
-                int numPoints = rand() % 26 + 25; // Randomize vertices between 25 and 50
-                m_particles.emplace_back(m_Window, numPoints, mousePosition);
+                int numPoints = rand() % 26 +25;
+                Particle p(m_Window, numPoints, {mousePos.x, mousePos.y});
+                m_particles.push_back(p);
             }
         }
     }
@@ -52,7 +54,7 @@ void Engine::update(float dtAsSeconds)
 void Engine::draw()
 {
     m_Window.clear();
-    for (const auto& particle : m_particles)
+    for (auto& particle : m_particles)
     {
         m_Window.draw(particle);
     }
@@ -62,6 +64,10 @@ void Engine::draw()
 void Engine::run()
 {
     Clock clock;
+    cout << "Starting Particle unit tests..." << endl;
+    Particle p(m_Window, 4, { (int)m_Window.getSize().x / 2, (int)m_Window.getSize().y / 2 });
+    p.unitTests();
+    cout << "Unit tests complete.  Starting engine..." << endl;
 
     while (m_Window.isOpen())
     {
