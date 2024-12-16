@@ -1,9 +1,10 @@
 #include "Engine.h"
+#include <iostream>
 
 Engine::Engine()
     : m_Window(VideoMode(800, 600), "Particle Engine")
 {
-    m_particles.push_back(Particle(m_Window, 5, Vector2i(400, 300)));
+    // Initialize empty particle vector
 }
 
 void Engine::input()
@@ -15,14 +16,36 @@ void Engine::input()
         {
             m_Window.close();
         }
+        else if (event.type == Event::MouseButtonPressed && event.mouseButton.button == Mouse::Left)
+        {
+            Vector2i mousePosition(event.mouseButton.x, event.mouseButton.y);
+
+            // Generate 5 particles with randomized shapes and behaviors
+            for (int i = 0; i < 5; ++i)
+            {
+                int numPoints = rand() % 26 + 25; // Randomize vertices between 25 and 50
+                m_particles.emplace_back(m_Window, numPoints, mousePosition);
+            }
+        }
     }
 }
 
 void Engine::update(float dtAsSeconds)
 {
-    for (auto& particle : m_particles)
+    // Use iterator to manage particle lifecycle
+    auto it = m_particles.begin();
+    while (it != m_particles.end())
     {
-        particle.update(dtAsSeconds);
+        it->update(dtAsSeconds);
+
+        if (it->getTTL() <= 0.0f)
+        {
+            it = m_particles.erase(it); // Erase returns the next iterator
+        }
+        else
+        {
+            ++it;
+        }
     }
 }
 
